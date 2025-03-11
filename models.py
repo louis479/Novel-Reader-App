@@ -8,4 +8,6 @@ class Author(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+
+    books = relationship('Book', back_populates='author', cascade="all, delete")
     
