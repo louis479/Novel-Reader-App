@@ -19,3 +19,8 @@ class Book(Base):
     author_id = Column(Integer, ForeignKey('authors.id'))
 
     author = relationship('Author', back_populates='books')
+
+engine = create_engine("sqlite:///library.db")
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+session = Session()
