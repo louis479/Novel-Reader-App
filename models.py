@@ -103,6 +103,17 @@ class Book(Base):
     @classmethod
     def find_by_id(cls, book_id):
         return session.query(cls).filter_by(id=book_id).first()
+    
+    @classmethod
+    def sort_books(cls, order_by="title"):
+        valid_columns = ["title", "author", "genre"]
+        if order_by not in valid_columns:
+            print("Invalid sorting option! Sorting by title.")
+            order_by = "title"
+        return session.query(cls).order_by(getattr(cls, order_by)).all()
+    
+    @classmethod
+    
 
     author = relationship('Author', back_populates='books')
 
