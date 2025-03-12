@@ -56,8 +56,12 @@ class Book(Base):
     pages = Column(Integer, nullable=True)
     read_status = Column(Boolean, default=False)
 
-    
-
+    @classmethod
+    def create(cls, title, author, genre=None, pages=None):
+        book = cls(title=title, author=author, genre=genre, pages=pages)
+        session.add(book)
+        session.commit()
+        return book
 
     author = relationship('Author', back_populates='books')
 
