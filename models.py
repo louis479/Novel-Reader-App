@@ -113,7 +113,14 @@ class Book(Base):
         return session.query(cls).order_by(getattr(cls, order_by)).all()
     
     @classmethod
-    
+    def delete_by_id(cls, book_id):
+        book = session.query(cls).filter_by(id=book_id).first()
+        if book:
+            session.delete(book)
+            session.commit()
+            print("Book deleted successfully.")
+        else:
+            print("Book not found.")
 
     author = relationship('Author', back_populates='books')
 
