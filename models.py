@@ -23,7 +23,8 @@ class Author(Base):
         return session.query(cls).all()
 
     @classmethod
-    
+    def find_by_id(cls, author_id):
+        return session.query(cls).filter_by(id=author_id).first()  
 
     @classmethod
     
