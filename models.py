@@ -27,9 +27,14 @@ class Author(Base):
         return session.query(cls).filter_by(id=author_id).first()  
 
     @classmethod
-    
-
-    @classmethod
+    def delete_by_id(cls, author_id):
+        author = session.query(cls).filter_by(id=author_id).first()
+        if author:
+            session.delete(author)
+            session.commit()
+            print("Author deleted")
+        else:
+            print("Author not found.")
 
 
 class Book(Base):
