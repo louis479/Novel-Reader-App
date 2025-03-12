@@ -99,6 +99,10 @@ class Book(Base):
     @classmethod
     def get_all(cls):
         return session.query(cls).all()
+    
+    @classmethod
+    def find_by_id(cls, book_id):
+        return session.query(cls).filter_by(id=book_id).first()
 
     author = relationship('Author', back_populates='books')
 
