@@ -52,6 +52,12 @@ class Book(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     author_id = Column(Integer, ForeignKey('authors.id'))
+    genre = Column(String, nullable=True)
+    pages = Column(Integer, nullable=True)
+    read_status = Column(Boolean, default=False)
+
+    
+
 
     author = relationship('Author', back_populates='books')
 
