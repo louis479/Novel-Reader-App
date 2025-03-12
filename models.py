@@ -19,7 +19,8 @@ class Author(Base):
         return author
 
     @classmethod
-    
+    def get_all(cls):
+        return session.query(cls).all()
 
     @classmethod
     
