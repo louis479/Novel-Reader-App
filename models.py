@@ -36,6 +36,15 @@ class Author(Base):
         else:
             print("Author not found.")
 
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, new_name):
+        if len(new_name) < 5:
+            raise ValueError("Name must be at least 5 characters long")
+        self._name = new_name
 
 class Book(Base):
     __tablename__ = 'books'
