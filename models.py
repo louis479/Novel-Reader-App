@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 Base = declarative_base()
@@ -70,7 +70,7 @@ class Book(Base):
         ).all()
     
     @classmethod
-    def update_read_status(cls, book, id, status):
+    def update_read_status(cls, book_id, status):
         book = session.query(cls).filter_by(id=book_id).first()
         if book:
             book.read_status = status
