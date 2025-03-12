@@ -11,6 +11,25 @@ class Author(Base):
 
     books = relationship('Book', back_populates='author', cascade="all, delete")
 
+    @classmethod
+    def create(cls, name):
+        author = cls(name=name)
+        session.add(author)
+        session.commit()
+        return author
+
+    @classmethod
+    
+
+    @classmethod
+    
+
+    @classmethod
+    
+
+    @classmethod
+
+
 class Book(Base):
     __tablename__ = 'books'
 
