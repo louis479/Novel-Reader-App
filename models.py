@@ -96,6 +96,10 @@ class Book(Base):
         else:
             print("Book not found.")
 
+    @classmethod
+    def get_all(cls):
+        return session.query(cls).all()
+
     author = relationship('Author', back_populates='books')
 
 engine = create_engine("sqlite:///library.db")
