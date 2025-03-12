@@ -62,6 +62,39 @@ class Book(Base):
         session.add(book)
         session.commit()
         return book
+    
+    @classmethod
+    def search(cls, keyword):
+        return session.query(cls).filter(
+            (cls.title.ilike(f"%{keyword}%")) | (cls.author.ilike(f"%{keyword}%"))
+        ).all()
+    
+    @classmethod
+    def update_read_status(cls, book, id, status):
+        book = session.query(cls).filter_by(id=book_id).first()
+        if book:
+            book.read_status = status
+            session.commit()
+            print(f"Book '{book.title}' marked as {'Read' if status else 'Unread'}.")
+        else:
+            print("Book not found.")
+
+    @classmethod
+    def update_details(cls, book_id, new_title=None, new_author=None, new_genre=None, new_pages=None):
+        book = session.query(cls).filter_by(id=book_id).first()
+        if book:
+            if new_title:
+                book.title = new_title
+            if new_author:
+                book.author = new_author
+            if new_genre:
+                book.genre = new_genre
+            if new_pages:
+                book.pages = new_pages
+            session.commit()
+            print(f"Book '{book.id}' update succesfully.")
+        else:
+            print("Book not found.")
 
     author = relationship('Author', back_populates='books')
 
