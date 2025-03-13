@@ -40,13 +40,24 @@ def mark_read(book_id, status):
 def update_book(book_id, new_title, new_author, new_genre, new_pages):
     Book.update_details(book_id, new_title, new_author, new_genre, new_pages)
 
-@cli.command()
-@click.option("--book_id", type=int, prompt="BookID", help="Enter book ID to update status")
-@click.option("--status", type=bool, prompt="Mark as Read(True/False)")
-def mark_read(book_id,status):
-    Book.update_read_status(book_id, status)
+# @cli.command()
+# @click.option("--book_id", type=int, prompt="BookID", help="Enter book ID to update status")
+# @click.option("--status", type=bool, prompt="Mark as Read(True/False)")
+# def mark_read(book_id,status):
+#     Book.update_read_status(book_id, status)
 
-    
+@cli.command()
+@click.option("--order_by", default="title", help="Sort by 'title', 'author', or 'genre'")
+def sort_books(order_by):
+    books = Book.sort_books(order_by)
+    for book in books:
+        click.echo(f"{book.id}: {book.title} by {book.author}")
+
+@cli.command()
+@click.argument("book_id", type=int)
+def delete_book(book_id):
+    Book.delete_by_id(book_id)
+
 
 if __name__ == "__main__":
     cli()
