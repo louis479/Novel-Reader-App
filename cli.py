@@ -12,20 +12,41 @@ def cli():
 @click.option("--genre", default="", help="Enter the book genre")
 @click.option("--pages", type=int, default=0, help="Number of pages")
 def add_book(title, author, genre, pages):
-    """Add a new book"""
     book = Book.create(title, author, genre, pages)
     click.echo(f"Book '{book.title}' added successfully!")
 
 @cli.command()
-@click.option("--keyword", prompt="Search Keyword", help="Enter name of title or author")
+@click.argument("keyword")
 def search_book(keyword):
-    """search for a book with title or author"""
-    book = Book.search(keyword)
+    books = Book.search(keyword)
     if books:
         for book in books:
             click.echo(f"{book.id}: {book.title} by {book.author}")
     else:
         click.echo("No books found.")
+
+@cli.command()
+@click.argument("book_id")
+@click.argument("status")
+def mark_read(book_id, status):
+    Book.update_read_status(book_id, status)
+
+@cli.command()
+@click.option("--book-id", prompt="Book ID", help="Enter the ID of the book to update")
+@click.option("--new-title", prompt="New Title", help="Enter the new title")
+@click.option("--new-author", prompt="New Author", help="Enter the new author name")
+@click.option("--new-genre", prompt="New Genre", help="Enter the new genre")
+@click.option("--new-pages", prompt="New Pages", type=int, help="Enter the new number of pages")
+def update_book(book_id, new_title, new_author, new_genre, new_pages):
+    Book.update_details(book_id, new_title, new_author, new_genre, new_pages)
+
+@cli.command()
+@click.option("--book_id", type=int, prompt="BookID", help="Enter book ID to update status")
+@click.option("--status", type=bool, prompt="Mark as Read(True/False)")
+def mark_read(book_id,status):
+    Book.update_read_status(book_id, status)
+
+    
 
 if __name__ == "__main__":
     cli()
