@@ -1,130 +1,83 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Boolean
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from sqlalchemy import Column, Integer, String, ForeignKey, create_engine
+from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 
+# Define the base class
 Base = declarative_base()
 
+# Database setup
+engine = create_engine("sqlite:///books.db")  # SQLite database
+Session = sessionmaker(bind=engine)
+session = Session()
+
 class Author(Base):
-    __tablename__ = 'authors'
+    __tablename__ = "authors"
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
-    books = relationship('Book', back_populates='author', cascade="all, delete")
-
-    @classmethod
-    def create(cls, name):
-        author = cls(name=name)
-        session.add(author)
-        session.commit()
-        return author
-
-    @classmethod
-    def get_all(cls):
-        return session.query(cls).all()
-
-    @classmethod
-    def find_by_id(cls, author_id):
-        return session.query(cls).filter_by(id=author_id).first()  
-
-    @classmethod
-    def delete_by_id(cls, author_id):
-        author = session.query(cls).filter_by(id=author_id).first()
-        if author:
-            session.delete(author)
-            session.commit()
-            print("Author deleted")
-        else:
-            print("Author not found.")
-
-    @property
-    def name(self):
-        return self._name
-
-    @name.setter
-    def name(self, new_name):
-        if len(new_name) < 5:
-            raise ValueError("Name must be at least 5 characters long")
-        self._name = new_name
+    def __init__(self, name):
+        if len(name) < 6:
+            raise ValueError("Name must be at least 6 characters long")
+        self.name = name
 
 class Book(Base):
-    __tablename__ = 'books'
+    __tablename__ = "books"
 
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
-    author_id = Column(Integer, ForeignKey('authors.id'))
     genre = Column(String, nullable=True)
     pages = Column(Integer, nullable=True)
-    read_status = Column(Boolean, default=False)
+    read_status = Column(String, nullable=True)  
+    author_id = Column(Integer, ForeignKey("authors.id"))
 
-    @classmethod
-    def create(cls, title, author, genre=None, pages=None):
-        book = cls(title=title, author=author, genre=genre, pages=pages)
-        session.add(book)
-        session.commit()
-        return book
-    
-    @classmethod
-    def search(cls, keyword):
-        return session.query(cls).filter(
-            (cls.title.ilike(f"%{keyword}%")) | (cls.author.ilike(f"%{keyword}%"))
-        ).all()
-    
-    @classmethod
-    def update_read_status(cls, book_id, status):
-        book = session.query(cls).filter_by(id=book_id).first()
-        if book:
-            book.read_status = status
-            session.commit()
-            print(f"Book '{book.title}' marked as {'Read' if status else 'Unread'}.")
-        else:
-            print("Book not found.")
+    author = relationship("Author", backref="books")
 
-    @classmethod
-    def update_details(cls, book_id, new_title=None, new_author=None, new_genre=None, new_pages=None):
-        book = session.query(cls).filter_by(id=book_id).first()
-        if book:
-            if new_title:
-                book.title = new_title
-            if new_author:
-                book.author = new_author
-            if new_genre:
-                book.genre = new_genre
-            if new_pages:
-                book.pages = new_pages
-            session.commit()
-            print(f"Book '{book.id}' update succesfully.")
-        else:
-            print("Book not found.")
+    def get_all(self):
+        return session.query(self).all()
 
-    @classmethod
-    def get_all(cls):
-        return session.query(cls).all()
-    
     @classmethod
     def find_by_id(cls, book_id):
         return session.query(cls).filter_by(id=book_id).first()
-    
+
     @classmethod
-    def sort_books(cls, order_by="title"):
-        valid_columns = ["title", "author", "genre"]
-        if order_by not in valid_columns:
-            print("Invalid sorting option! Sorting by title.")
-            order_by = "title"
-        return session.query(cls).order_by(getattr(cls, order_by)).all()
-    
+    def create(cls, title, author_name, genre="", pages=0, read_status="Not Started"):
+        author = session.query(Author).filter_by(name=author_name).first()
+        if not author:
+            author = Author(name=author_name)
+            session.add(author)
+            session.commit()
+
+        new_book = cls(title=title, author=author, genre=genre, pages=pages, read_status=read_status)
+        session.add(new_book)
+        session.commit()
+        return new_book
+
     @classmethod
-    def delete_by_id(cls, book_id):
-        book = session.query(cls).filter_by(id=book_id).first()
+    def update_details(cls, book_id, title=None, author_name=None, genre=None, pages=None, read_status=None):
+        book = cls.find_by_id(book_id)
+        if book:
+            if title:
+                book.title = title
+            if author_name:
+                author = session.query(Author).filter_by(name=author_name).first()
+                if not author:
+                    author = Author(name=author_name)
+                    session.add(author)
+                book.author = author
+            if genre:
+                book.genre = genre
+            if pages is not None:
+                book.pages = pages
+            if read_status:
+                book.read_status = read_status
+            session.commit()
+
+    @classmethod
+    def delete_by_id(self):
+        book = self.find_by_id(self.id)
         if book:
             session.delete(book)
             session.commit()
-            print("Book deleted successfully.")
-        else:
-            print("Book not found.")
 
-    author = relationship('Author', back_populates='books')
-
-engine = create_engine("sqlite:///library.db")
+# Create tables
 Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()

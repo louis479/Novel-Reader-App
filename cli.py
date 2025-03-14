@@ -1,63 +1,96 @@
 import click
-from models import session, Book
+from models import Book, Author, session
 
 @click.group()
 def cli():
-    """Novel Reader App"""
+    """Command-line interface for managing books."""
     pass
 
-@cli.command()
-@click.option("--title", prompt="Book Title", help="Enter the book title")
-@click.option("--author", prompt="Author", help="Enter the author's name")
-@click.option("--genre", default="", help="Enter the book genre")
-@click.option("--pages", type=int, default=0, help="Number of pages")
-def add_book(title, author, genre, pages):
-    book = Book.create(title, author, genre, pages)
-    click.echo(f"Book '{book.title}' added successfully!")
+@click.command()
+def add_book():
+    """Add a new book."""
+    title = input("Book Title: ").strip()
+    author_name = input("Author: ").strip()
 
-@cli.command()
-@click.argument("keyword")
-def search_book(keyword):
-    books = Book.search(keyword)
-    if books:
-        for book in books:
-            click.echo(f"{book.id}: {book.title} by {book.author}")
+    if len(author_name) < 6:
+        print("Error: Author name must be at least 6 characters long.")
+        return
+
+    # Check if the author exists, if not, create a new one
+    author = session.query(Author).filter_by(name=author_name).first()
+    if not author:
+        author = Author(name=author_name)
+        session.add(author)
+        session.commit()
+
+    # Create and add book
+    new_book = Book(title=title, author_id=author.id)
+    session.add(new_book)
+    session.commit()
+
+    print(f"Book '{title}' by {author_name} added successfully!")
+
+@click.command()
+def list_books():
+    """List all books in the database."""
+    books = session.query(Book).all()
+    if not books:
+        print("No books found.")
     else:
-        click.echo("No books found.")
+        for book in books:
+            output = f"{book.id}. {book.title} by {book.author.name}"
+            print(output)
 
-@cli.command()
-@click.argument("book_id")
-@click.argument("status")
-def mark_read(book_id, status):
-    Book.update_read_status(book_id, status)
+@click.command
+def get_book_by_id(book_id):
+    return session.query(Book).filter_by(id=book_id).first()
 
-@cli.command()
-@click.option("--book-id", prompt="Book ID", help="Enter the ID of the book to update")
-@click.option("--new-title", prompt="New Title", help="Enter the new title")
-@click.option("--new-author", prompt="New Author", help="Enter the new author name")
-@click.option("--new-genre", prompt="New Genre", help="Enter the new genre")
-@click.option("--new-pages", prompt="New Pages", type=int, help="Enter the new number of pages")
-def update_book(book_id, new_title, new_author, new_genre, new_pages):
-    Book.update_details(book_id, new_title, new_author, new_genre, new_pages)
-
-# @cli.command()
-# @click.option("--book_id", type=int, prompt="BookID", help="Enter book ID to update status")
-# @click.option("--status", type=bool, prompt="Mark as Read(True/False)")
-# def mark_read(book_id,status):
-#     Book.update_read_status(book_id, status)
-
-@cli.command()
-@click.option("--order_by", default="title", help="Sort by 'title', 'author', or 'genre'")
-def sort_books(order_by):
-    books = Book.sort_books(order_by)
-    for book in books:
-        click.echo(f"{book.id}: {book.title} by {book.author}")
-
-@cli.command()
+@click.command()
 @click.argument("book_id", type=int)
 def delete_book(book_id):
-    Book.delete_by_id(book_id)
+    """Delete a book by its ID."""
+    book = get_book_by_id(book_id)
+    if not book:
+        print(f"Book with ID {book_id} not found.")
+        return
 
+    session.delete(book)
+    session.commit()
+    print(f"Deleted book: {book.title}")
+
+@click.command()
+@click.argument("book_id", type=int)
+@click.option("--title", help="New title for the book")
+@click.option("--author", help="New author name for the book")
+def update_book(book_id, title, author):
+    """Update book details by ID."""
+    book = get_book_by_id(book_id)
+    if not book:
+        print(f"Book with ID {book_id} not found.")
+        return
+
+    if title:
+        book.title = title
+    if author:
+        if len(author) < 6:
+            print("Error: Author name must be at least 6 characters long.")
+            return
+
+        author_obj = session.query(Author).filter_by(name=author).first()
+        if not author_obj:
+            author_obj = Author(name=author)
+            session.add(author_obj)
+            session.commit()
+
+        book.author_id = author_obj.id
+
+    session.commit()
+    print(f"Updated book ID {book_id}: {book.title} by {book.author.name}")
+
+cli.add_command(add_book)
+cli.add_command(list_books)
+cli.add_command(delete_book)
+cli.add_command(update_book)
 
 if __name__ == "__main__":
     cli()
