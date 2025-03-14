@@ -7,13 +7,14 @@ The **Novel Reader App** is a command-line application that allows users to mana
 ---
 
 ## Features
+
 These are the following features present in my project:
 
 - **Add a New Book**: Users can add a book along with the author's name.
 - **List All Books**: View all stored books with details.
 - **Update Book Details**: Modify the book title or author.
 - **Delete a Book**: Remove a book from the database.
-- **Search Functionality **: Implement book search by title or author.
+- **Search Functionality**: Implement book search by title or author.
 - **Mark Book as Read or Unread**: Can mark the book to match the book status as user.
 
 ---
@@ -34,6 +35,7 @@ Here are the following:
 This is my project structure for Novel Reader App
 
 ```
+
 Novel-Reader-App/
 │── venv             # virtual environment
 │── models.py        # Defines the Book and Author models
@@ -89,7 +91,7 @@ python
 
 Here are the steps:
 
-1. Run the App.py 
+1. Run the App.py
 
 First run the app.py to get the view of what the code does.
 
@@ -100,6 +102,7 @@ python app.py
 ### 2.Run the CLI
 
 Then run the Cli to mange the books from the terminal
+
 ```sh
 python cli.py --help
 ```
@@ -147,19 +150,23 @@ WARNING: This is a development server. Do not use it in a production deployment.
  * Running on http://127.0.0.1:5000
 Press CTRL+C to quit
 ```
+
 - It will give you a Welcome message.
+
 ```sh
 {"message":"Welcome to the Novel Reader API!"}
 ```
 
-- Then on the url page add ***/books***  in your http://127.0.0.1:5000 to form http://127.0.0.1:5000/books to see the list
+- Then on the url page add ***/books***  in your <http://127.0.0.1:5000> to form <http://127.0.0.1:5000/books> to see the list
 
 **Example:**
+
 ```sh
 [{"author":"Danielle steel","genre":"Romance","id":1,"pages":567,"read_status":"Reading","title":"The House"},
 {"author":"William robert","genre":"Fiction","id":2,"pages":1230,"read_status":"Reading","title":"Space Ranger"},
 {"author":"Joestar Mary","genre":"Romance","id":3,"pages":340,"read_status":"Reading","title":"Melody"}]
 ```
+
 ---
 
 ## Conclusion
@@ -167,4 +174,3 @@ Press CTRL+C to quit
 Thank you for taking your time in looking through this project.
 
 Have a blessed Day.
-
