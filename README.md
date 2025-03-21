@@ -35,7 +35,6 @@ Here are the following:
 This is my project structure for Novel Reader App
 
 ```
-
 Novel-Reader-App/
 │── venv             # virtual environment
 │── models.py        # Defines the Book and Author models
@@ -137,34 +136,6 @@ Use the cli to delete the books you selected
 
 ```sh
 python cli.py delete-book <book_id>
-```
-
-### 5.View the books
-
-- To view the books added and its changes, check your browser in the link given in your terminal. It will give you
-
-```sh
-python flask run
- * Debug mode: off
-WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:5000
-Press CTRL+C to quit
-```
-
-- It will give you a Welcome message.
-
-```sh
-{"message":"Welcome to the Novel Reader API!"}
-```
-
-- Then on the url page add ***/books***  in your <http://127.0.0.1:5000> to form <http://127.0.0.1:5000/books> to see the list
-
-**Example:**
-
-```sh
-[{"author":"Danielle steel","genre":"Romance","id":1,"pages":567,"read_status":"Reading","title":"The House"},
-{"author":"William robert","genre":"Fiction","id":2,"pages":1230,"read_status":"Reading","title":"Space Ranger"},
-{"author":"Joestar Mary","genre":"Romance","id":3,"pages":340,"read_status":"Reading","title":"Melody"}]
 ```
 
 ---

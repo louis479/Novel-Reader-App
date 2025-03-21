@@ -11,86 +11,68 @@ def add_book():
     """Add a new book."""
     title = input("Book Title: ").strip()
     author_name = input("Author: ").strip()
+    genre = input("Genre (optional): ").strip()
+    pages = input("Number of pages (optional): ").strip()
+    read_status = input("Read status (default 'Not Started'): ").strip()
 
-    if len(author_name) < 6:
-        print("Error: Author name must be at least 6 characters long.")
+    if not pages.isdigit() and pages:
+        print("Error: Pages must be a number.")
         return
 
-    # Check if the author exists, if not, create a new one
-    author = session.query(Author).filter_by(name=author_name).first()
-    if not author:
-        author = Author(name=author_name)
-        session.add(author)
-        session.commit()
+    book = Book.create(title=title, author_name=author_name, genre=genre or None, pages=int(pages) if pages else None, read_status=read_status or "Not Started")
+    print(f"Book '{book.title}' by {book.author.name} added successfully!")
 
-    # Create and add book
-    new_book = Book(title=title, author_id=author.id)
-    session.add(new_book)
-    session.commit()
-
-    print(f"Book '{title}' by {author_name} added successfully!")
-
+# use of click commands to give emphasis on the function
 @click.command()
 def list_books():
     """List all books in the database."""
-    books = session.query(Book).all()
+    books = Book.get_all()
     if not books:
         print("No books found.")
     else:
         for book in books:
-            output = f"{book.id}. {book.title} by {book.author.name}"
-            print(output)
-
-@click.command
-def get_book_by_id(book_id):
-    return session.query(Book).filter_by(id=book_id).first()
+            print(f"{book.id}. {book.title} by {book.author.name}")
 
 @click.command()
 @click.argument("book_id", type=int)
-def delete_book(book_id):
-    """Delete a book by its ID."""
-    book = get_book_by_id(book_id)
-    if not book:
-        print(f"Book with ID {book_id} not found.")
-        return
-
-    session.delete(book)
-    session.commit()
-    print(f"Deleted book: {book.title}")
+def get_book_by_id(book_id):
+    """Get book details by ID."""
+    book = Book.find_by_id(book_id)
+    if book:
+        print(f"Title: {book.title}\nAuthor: {book.author.name}\nGenre: {book.genre or 'N/A'}\nPages: {book.pages or 'N/A'}\nStatus: {book.read_status}")
+    else:
+        print("Book not found.")
 
 @click.command()
 @click.argument("book_id", type=int)
 @click.option("--title", help="New title for the book")
 @click.option("--author", help="New author name for the book")
-def update_book(book_id, title, author):
+@click.option("--genre", help="New genre")
+@click.option("--pages", type=int, help="New page count")
+@click.option("--status", help="New read status")
+def update_book(book_id, title, author, genre, pages, status):
     """Update book details by ID."""
-    book = get_book_by_id(book_id)
-    if not book:
+    updated_book = Book.update_details(book_id, title=title, author_name=author, genre=genre, pages=pages, read_status=status)
+    if updated_book:
+        print(f"Updated book ID {book_id}: {updated_book.title} by {updated_book.author.name}")
+    else:
         print(f"Book with ID {book_id} not found.")
-        return
 
-    if title:
-        book.title = title
-    if author:
-        if len(author) < 6:
-            print("Error: Author name must be at least 6 characters long.")
-            return
+@click.command()
+@click.argument("book_id", type=int)
+def delete_book(book_id): # Delete a book by its ID.
+    success = Book.delete_by_id(book_id)
+    if success:
+        print(f"Deleted book with ID {book_id}")
+    else:
+        print(f"Book with ID {book_id} not found.")
 
-        author_obj = session.query(Author).filter_by(name=author).first()
-        if not author_obj:
-            author_obj = Author(name=author)
-            session.add(author_obj)
-            session.commit()
-
-        book.author_id = author_obj.id
-
-    session.commit()
-    print(f"Updated book ID {book_id}: {book.title} by {book.author.name}")
-
+# create commands for various functions
 cli.add_command(add_book)
 cli.add_command(list_books)
-cli.add_command(delete_book)
+cli.add_command(get_book_by_id)
 cli.add_command(update_book)
+cli.add_command(delete_book)
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # you can now directly execute the script directly in your terminal
     cli()

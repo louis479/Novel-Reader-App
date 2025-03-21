@@ -4,40 +4,43 @@ from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 # Define the base class
 Base = declarative_base()
 
-# Database setup
-engine = create_engine("sqlite:///books.db")  # SQLite database
+# This is the Database setup
+engine = create_engine("sqlite:///books.db")  
 Session = sessionmaker(bind=engine)
 session = Session()
 
+# Two classes are kept author class and Book class
 class Author(Base):
     __tablename__ = "authors"
-
+# INPUTTING DETAILS IN THE COLUMN
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
 
     def __init__(self, name):
         if len(name) < 6:
-            raise ValueError("Name must be at least 6 characters long")
+            raise ValueError("Author name must be at least 6 characters long")
         self.name = name
 
 class Book(Base):
-    __tablename__ = "books"
+    __tablename__ = 'books'
 
+    # INPUTTING DETAILS IN THE COLUMN
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     genre = Column(String, nullable=True)
     pages = Column(Integer, nullable=True)
-    read_status = Column(String, nullable=True)  
-    author_id = Column(Integer, ForeignKey("authors.id"))
-
+    read_status = Column(String, nullable=True, default="Not Started")
+    author_id = Column(Integer, ForeignKey('authors.id'))
     author = relationship("Author", backref="books")
 
-    def get_all(self):
-        return session.query(self).all()
-
+    # USE OF CLASS METHOD PROPERTIES
     @classmethod
     def find_by_id(cls, book_id):
         return session.query(cls).filter_by(id=book_id).first()
+
+    @classmethod
+    def get_all(cls):
+        return session.query(cls).all()
 
     @classmethod
     def create(cls, title, author_name, genre="", pages=0, read_status="Not Started"):
@@ -63,6 +66,7 @@ class Book(Base):
                 if not author:
                     author = Author(name=author_name)
                     session.add(author)
+                    session.commit()
                 book.author = author
             if genre:
                 book.genre = genre
@@ -71,13 +75,17 @@ class Book(Base):
             if read_status:
                 book.read_status = read_status
             session.commit()
+            return book
+        return None
 
     @classmethod
-    def delete_by_id(self):
-        book = self.find_by_id(self.id)
+    def delete_by_id(cls, book_id):
+        book = cls.find_by_id(book_id)
         if book:
             session.delete(book)
             session.commit()
+            return True
+        return False
 
 # Create tables
 Base.metadata.create_all(engine)
