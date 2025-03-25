@@ -34,7 +34,8 @@ Here are the following:
 
 This is my project structure for Novel Reader App
 
-```
+```bash
+
 Novel-Reader-App/
 │── venv             # virtual environment
 │── models.py        # Defines the Book and Author models
@@ -43,6 +44,7 @@ Novel-Reader-App/
 │── app.py           # Handles Api Request
 │── README.md        # Documentation
 │── requirements.txt # Dependencies
+
 ```
 
 ---
